@@ -36,16 +36,21 @@ const menghitungAkhirVerHori = (kecepatanAwal: number, sudut: number, resistansi
   if (sinValue === undefined || cosValue === undefined) return "Nilai sudut tidak valid";
 
   // Perhitungan
-  const Voy = kecepatanAwal * sinValue; // Kecepatan vertikal awal
-  const Vox = kecepatanAwal * cosValue; // Kecepatan horizontal awal
+  const V0y = kecepatanAwal * sinValue; // Kecepatan vertikal awal
+  const V0x = kecepatanAwal * cosValue; // Kecepatan horizontal akhir
+  const t_udara = (2 * V0y) / gravitasi; // Waktu total di udara
+
+  const Vy = V0y - gravitasi * t_udara; // Kecepatan vertikal akhir
+  const Vx = V0x; // Kecepatan horizontal akhir
+  const Vt = Math.sqrt(Math.pow(Vx, 2) + Math.pow(Vy, 2)); // Kecepatan total akhir 
+  
   const totalPercepatanVertikal = gravitasi; // Percepatan vertikal akibat gravitasi
 
-  const t_udara = (2 * Voy) / gravitasi; // Waktu total di udara
-  const posisiAkhirX = Number((posisiAwalX + Vox * t_udara - 0.5 * resistansiUdara * Math.pow(t_udara, 2)).toFixed(3)); // Posisi horizontal akhir
+  const posisiAkhirX = Number((posisiAwalX + V0x * t_udara - 0.5 * resistansiUdara * Math.pow(t_udara, 2)).toFixed(3)); // Posisi horizontal akhir
   const posisiAkhirY = Number(posisiAwalY.toFixed(3)); // Posisi vertikal akhir tetap sama karena kembali ke tanah
-  const titikTertinggi = Number((posisiAwalY + Voy * (0.5 * t_udara) - 0.5 * totalPercepatanVertikal * Math.pow(0.5 * t_udara, 2)).toFixed(3)); // Titik tertinggi
+  const titikTertinggi = Number((posisiAwalY + V0y * (0.5 * t_udara) - 0.5 * totalPercepatanVertikal * Math.pow(0.5 * t_udara, 2)).toFixed(3)); // Titik tertinggi
 
-  return { posisiAkhirX, posisiAkhirY, titikTertinggi, Vox, Voy };
+  return { posisiAkhirX, posisiAkhirY, titikTertinggi, Vx, V0y };
 };
 
 export { menghitungAkhirMendatar, menghitungAkhirVerHori };
