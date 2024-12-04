@@ -37,7 +37,7 @@ const menghitungAkhirVerHori = (kecepatanAwal: number, sudut: number, resistansi
 
   // Perhitungan
   const V0y = kecepatanAwal * sinValue; // Kecepatan vertikal awal
-  const V0x = kecepatanAwal * cosValue; // Kecepatan horizontal akhir
+  const V0x = kecepatanAwal * cosValue; // Kecepatan horizontal awal
   const t_udara = (2 * V0y) / gravitasi; // Waktu total di udara
 
   const Vy = V0y - gravitasi * t_udara; // Kecepatan vertikal akhir
@@ -50,7 +50,7 @@ const menghitungAkhirVerHori = (kecepatanAwal: number, sudut: number, resistansi
   const posisiAkhirY = Number(posisiAwalY.toFixed(3)); // Posisi vertikal akhir tetap sama karena kembali ke tanah
   const titikTertinggi = Number((posisiAwalY + V0y * (0.5 * t_udara) - 0.5 * totalPercepatanVertikal * Math.pow(0.5 * t_udara, 2)).toFixed(3)); // Titik tertinggi
 
-  return { posisiAkhirX, posisiAkhirY, titikTertinggi, Vx, V0y };
+  return { posisiAkhirX, posisiAkhirY, titikTertinggi, Vx, Vy, Vt };
 };
 
 export { menghitungAkhirMendatar, menghitungAkhirVerHori };
