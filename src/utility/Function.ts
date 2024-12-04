@@ -37,7 +37,7 @@ const menghitungAkhirVerHori = (kecepatanAwal: number, sudut: number, resistansi
 
   // Perhitungan
   const V0y = kecepatanAwal * sinValue; // Kecepatan vertikal awal
-  const V0x = kecepatanAwal * cosValue; // Kecepatan horizontal akhir
+  const V0x = kecepatanAwal * cosValue; // Kecepatan horizontal awal
   const t_udara = (2 * V0y) / gravitasi; // Waktu total di udara
 
   const Vy = V0y - gravitasi * t_udara; // Kecepatan vertikal akhir
