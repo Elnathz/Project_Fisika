@@ -9,7 +9,7 @@ interface IViewUser {
 const CanvasBg = ({ canvasData, repeatOn }: { canvasData: ICanvasData; repeatOn: boolean }) => {
   const animationRef = useRef<number | null>(null); // Menyimpan ID animasi untuk dibatalkan
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const resistansiUdara = useRef<number>(Number((Math.random() * (10 - 5) + 5).toFixed(3))).current;
+  const resistansiUdara = useRef<number>(Number((Math.random() * (15 - 1) + 1).toFixed(3))).current;
   const [viewUser, setViewUser] = useState<IViewUser>({ tengahMendatar: "0 Meter", akhirMendatar: "0 Meter" });
 
   useEffect(() => {
@@ -100,7 +100,7 @@ const CanvasBg = ({ canvasData, repeatOn }: { canvasData: ICanvasData; repeatOn:
     context.fillStyle = canvasData.warna;
 
     // Mulai menggambar
-    draw(canvasData.kecepatan - resistansiUdara / massaBenda, Number(canvasData.sudut));
+    draw(canvasData.kecepatan - resistansiUdara, Number(canvasData.sudut));
 
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);

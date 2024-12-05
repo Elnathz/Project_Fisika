@@ -26,8 +26,15 @@ const menghitungAkhirMendatar = (kecepatanAwal: number, sudut: number, resistans
 // untuk derajat > 0
 const menghitungAkhirVerHori = (kecepatanAwal: number, sudut: number, resistansiUdara: number) => {
   const gravitasi = 9.8; // m/s^2
-  const posisiAwalY = 0; // m
-  const posisiAwalX = 0; // m
+  const koefisienHambatanUdara = 0.3; // koefisien hambatan udara sekitar 0.2 - 0.5 tergantung banyak faktor, tetapi di sini dibuat 0.3 karena cukup kompleks untuk perhitungannya
+  const massaBola = 0.5; // kg
+  const diameterBola = 0.22 ; // m didapat dari diameter bola piala dunia
+  const tekananUdara = 101325 // menggunakan Pa | Pascal 1 pascal = 1 N/m^2, 101325 setara dengan 1 atmoster dan dibuat konstan karena tidak ada perubahan tekanan udara yang signifikan dalam perhitungan ini
+  const konstantaGasUdara = 287 ; // J/(kg*K), didapat dari perhitungan dinamika fluida dan rata rata menggunakan 287 J/kg*K untuk nilai udara
+  const suhuUdara = 25;// buat math.random seperti udara, buat 25 - 35 derajat celcius
+  const densitasUdara = (tekananUdara)/(konstantaGasUdara * (suhuUdara + 273.15)); // densitas udara dalam kg/m^3, dan suhu udara ditambah 273.15 agar berubah menjadi kelvin
+  const luasPenampangBola = Math.PI * Math.pow(0.5 * diameterBola, 2); // m^2
+
 
   // Ambil nilai sin dan cos dari enum
   const sinValue = SinValues[`SIN_${sudut}` as keyof typeof SinValues];
@@ -38,19 +45,66 @@ const menghitungAkhirVerHori = (kecepatanAwal: number, sudut: number, resistansi
   // Perhitungan
   const V0y = kecepatanAwal * sinValue; // Kecepatan vertikal awal
   const V0x = kecepatanAwal * cosValue; // Kecepatan horizontal awal
-  const t_udara = (2 * V0y) / gravitasi; // Waktu total di udara
-
-  const Vy = V0y - gravitasi * t_udara; // Kecepatan vertikal akhir
-  const Vx = V0x; // Kecepatan horizontal akhir
-  const Vt = Math.sqrt(Math.pow(Vx, 2) + Math.pow(Vy, 2)); // Kecepatan total akhir 
   
-  const totalPercepatanVertikal = gravitasi; // Percepatan vertikal akibat gravitasi
+  // initialisasi data
+  let Vy = V0y; // kecepatan vertikal
+  let Vx = V0x; // kecepatan horizontal
+  let Vt = Math.sqrt(Math.pow(V0x, 2) + Math.pow(V0y, 2));  // Kecepatan total
+  let langkahWaktu = 0.01; // detik
+  let posisiAwalY = 0; // m
+  let posisiAwalX = 0; // m
+  let posisiAkhirX = 0;
+  let posisiAkhirY = 0;
+  let totalWaktu = 0; // detik
 
-  const posisiAkhirX = Number((posisiAwalX + V0x * t_udara - 0.5 * resistansiUdara * Math.pow(t_udara, 2)).toFixed(3)); // Posisi horizontal akhir
-  const posisiAkhirY = Number(posisiAwalY.toFixed(3)); // Posisi vertikal akhir tetap sama karena kembali ke tanah
-  const titikTertinggi = Number((posisiAwalY + V0y * (0.5 * t_udara) - 0.5 * totalPercepatanVertikal * Math.pow(0.5 * t_udara, 2)).toFixed(3)); // Titik tertinggi
+  // Fungsi untuk menghitung drag
+  const Hambatan = function (Vx : number, Vy : number) {
+  return 0.5 * koefisienHambatanUdara * densitasUdara * luasPenampangBola * Math.pow(Vt, 2);  // Gaya drag
+}
 
-  return { posisiAkhirX, posisiAkhirY, titikTertinggi, Vx, Vy, Vt };
+// Fungsi untuk menghitung waktu ke titik tertinggi secara analitis
+  const Tpuncak = function (Vy : number, massaBola : number, koefisienHambatanUdara : number, gravitasi : number) {
+  return -(massaBola / koefisienHambatanUdara) * Math.log((massaBola * gravitasi / koefisienHambatanUdara) / (Vy + massaBola * gravitasi / koefisienHambatanUdara));
+}
+
+// Fungsi untuk menghitung tinggi maksimum secara analitis
+  let Ypuncak = function(Vy: number, massaBola: number, koefisienHambatanUdara: number, gravitasi: number) {
+  const waktuTertinggi = Tpuncak (Vy, massaBola, koefisienHambatanUdara, gravitasi);
+  return (massaBola / koefisienHambatanUdara) * ((Vy + massaBola * gravitasi / koefisienHambatanUdara) * (1 - Math.exp(-koefisienHambatanUdara * waktuTertinggi / massaBola)) - gravitasi * waktuTertinggi);
+}
+
+
+// Simulasi gerak bola dengan drag menggunakan metode Euler
+const simulasiGerakBola = function (posisiAkhirX : number, posisiAkhirY : number, posisiAwalX: number, posisiAwalY: number, Vx: number, Vy: number, massaBola: number, koefisienHambatanUdara: number, gravitasi: number, langkahWaktu: number, totalWaktu: number) {
+  while (posisiAwalY >= 0) {
+    // Hitung gaya drag pada komponen horizontal dan vertikal
+    let gayaHambatan = Hambatan(Vx, Vy);
+
+    // Perubahan kecepatan horizontal dan vertikal
+    let gayaHambatanX = gayaHambatan * (Vx / Vt);  // Komponen horizontal dari gaya Hambatan
+    let gayaHambatanY = gayaHambatan * (Vy / Vt);  // Komponen vertikal dari gaya Hambatan
+
+    // Perbarui kecepatan berdasarkan gaya drag dan gravitasi
+    Vx = Vx - (gayaHambatanX / massaBola) * langkahWaktu;  // Perubahan kecepatan horizontal
+    Vy = Vy - (gravitasi + gayaHambatanY / massaBola) * langkahWaktu;  // Perubahan kecepatan vertikal (termasuk gravitasi)
+
+    // Perbarui posisi bola
+    let posisiAkhirX = posisiAwalX + Vx * langkahWaktu;
+    let posisiAkhirY = posisiAwalY + Vy * langkahWaktu;
+
+    // Perbarui waktu
+    totalWaktu += langkahWaktu;
+    return {posisiAkhirX, posisiAkhirY, totalWaktu, titikTertinggi};
+  }
+}
+  const titikTertinggi = Ypuncak (Vy, massaBola, koefisienHambatanUdara, gravitasi);
+
+// Simulasi numerik
+  const simulasi = simulasiGerakBola(posisiAkhirX, posisiAkhirY, posisiAwalX, posisiAwalY, Vx, Vy, massaBola, koefisienHambatanUdara, gravitasi, langkahWaktu, totalWaktu);
+
+  // perhitungan untuk pantulan bola belum fix
+  const V_EP = Math.sqrt(2*gravitasi*titikTertinggi); // kecepatan bola dari titik tertinggi yang dirubah menjadi energi kinetik 
+  
+  return {posisiAkhirX, posisiAkhirY, totalWaktu, titikTertinggi};
 };
-
 export { menghitungAkhirMendatar, menghitungAkhirVerHori };
