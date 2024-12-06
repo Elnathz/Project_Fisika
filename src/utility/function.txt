@@ -1,0 +1,10 @@
+
+
+// Contoh penggunaan  
+const v0 = 55; // kecepatan awal (m/s)  
+const theta = 45; // sudut peluncuran (derajat)  
+const t = 2; // waktu (detik)  
+const m = 0.5; // massa (kg)  
+
+const kecepatanTotal = hitungKecepatanTotal(v0, theta, t, m);  
+console.log(`Kecepatan total setelah ${t} detik adalah ${kecepatanTotal.toFixed(2)} m/s.`);
