@@ -60,8 +60,8 @@ function kecepatanBenda (waktu : number, V0y: SinValues, V0x: CosValues, resista
   const percepatanVertikal = -gravitasi;
   const percepatanHorizontal = - gayaHambatanUdara / massaBola;
 
-  const Vx = V0x + percepatanHorizontal * waktu;
-  const Vy = V0y + percepatanVertikal * waktu;
+  const Vx = V0x + percepatanHorizontal 
+  const Vy = V0y + percepatanVertikal
   return {Vx, Vy}
 }
 export { menghitungAkhirMendatar, menghitungAkhirVerHori };
