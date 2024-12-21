@@ -84,10 +84,10 @@ const CanvasBg = ({ canvasData, active }: { canvasData: ICanvasData; active: boo
         if (animationRef.current) cancelAnimation(); // Bersihkan animasi sebelumnya
 
         // Perhitungan kecepatan dikali dengan sin dan cos sudut
-        let Vox = Number((kecepatanAwal * CosValue).toFixed(2));
+        let Vox = Number(kecepatanAwal * CosValue);
         let Voy = Number((kecepatanAwal * SinValue).toFixed(2));
 
-        const t = 0.02; // langkah waktu
+        const t = 0.01; // langkah waktu
         const a = -(0.3 * (gravity * massaBenda)) / massaBenda;
         const kondisiSudut = sudut <= 0;
         const waktuTempuh = kondisiSudut ? -kecepatanAwal / a : (2 * Voy) / gravity; // Waktu total di udara
@@ -150,7 +150,7 @@ const CanvasBg = ({ canvasData, active }: { canvasData: ICanvasData; active: boo
             // Lanjutkan animasi
             animationRef.current = requestAnimationFrame(update);
 
-            console.log(Vox, mencariFd(drag, 1.23, Number(mencariLuasPenampang(0.11).toFixed(2)), Vox), perulangan);
+            console.log(CosValue, 1.23, drag, (mencariLuasPenampang(0.11).toFixed(2)), Vox, Number(mencariFd(drag, 1.23, 0.04, Vox).toFixed(5)), aX, perulangan);
             Vox = Number(vt_x);
             Voy = Number(vt_y);
             perulangan++;
